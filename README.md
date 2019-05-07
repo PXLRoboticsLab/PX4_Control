@@ -1,5 +1,17 @@
 # SITL gazebo
 
+## prerequisite
+* Gazebo installed
+```
+http://gazebosim.org
+```
+* PX4 Firmware clone and checkouted to version v1.8.2
+```
+cd ~
+git clone https://github.com/PX4/Firmware.git
+git checkout tags/v1.8.2
+```
+
 ## Installing this package
 
 ### Clone this into the src folder of your catkin workspace
