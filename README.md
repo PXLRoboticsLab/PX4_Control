@@ -5,7 +5,7 @@
 ```
 http://gazebosim.org
 ```
-* PX4 Firmware clone and checkouted to version v1.8.2
+* PX4 Firmware clone and checkout to version v1.8.2
 ```
 cd ~
 git clone https://github.com/PX4/Firmware.git
