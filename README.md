@@ -3,7 +3,15 @@
 ## Installing this package
 
 ### Clone this into the src folder of your catkin workspace
+```
+cd ~/catkin_ws/src
+git clone https://github.com/PXLRoboticsLab/PX4_SITL.git
+```
 ### Build your catkin workspace
+```
+cd ~/catkin_ws
+catkin build
+```
 
 ## Start simulation and link px4
 
@@ -20,14 +28,14 @@ roslaunch mavros px4.launch fcu_url:="udp://:14540@127.0.0.1:14557"
 
 ## Running this package
 
-## If the simulation and link are running open a new terminal and go to your catkin workspace
+### If the simulation and link are running open a new terminal and go to your catkin workspace
 ```
 cd ~/catkin_ws
 ```
 
-## Start the package with
+### Start the package with
 ````
 rosrun px4_sitl px4_ros.py
 ````
 
-## Enter a mission file, there is a default mission file called test.json
+### Enter a mission file, there is a default mission file called test.json
