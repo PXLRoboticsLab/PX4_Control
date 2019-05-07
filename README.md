@@ -1,6 +1,6 @@
 # SITL gazebo
 
-## prerequisite
+## Prerequisite
 * Gazebo installed
 ```
 http://gazebosim.org
@@ -29,12 +29,14 @@ catkin build
 
 ### In the firmware folder of px4
 ```
+cd ~/Firmware
 make px4_sitl_default gazebo
 ```
 
 ### In the your catkin workspace
 
 ```
+cd ~/catkin_ws
 roslaunch mavros px4.launch fcu_url:="udp://:14540@127.0.0.1:14557"
 ```
 
