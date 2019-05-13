@@ -16,7 +16,7 @@ def mission(mission_file_path):
     try:
         mission = read_mission(mission_file_path)
     except IOError as e:
-        self.fail(e)
+        print e
     try:
         # Topic to which we have to push the waypoint array to.
         wp_push_srv = rospy.ServiceProxy('mavros/mission/push', WaypointPush)
@@ -188,7 +188,7 @@ if __name__ == '__main__':
     rospy.init_node('test_node', anonymous=True)
 
     # Ask the user which mission file to read using src/px4_sitl/missions as a base path.
-    mission_file = raw_input("Please enter the name of the mission name:")
+    mission_file = raw_input("Please enter the name of the mission:")
     mission_file_path = os.path.abspath("src/px4_sitl/missions/" + mission_file)
     print mission_file_path
 
