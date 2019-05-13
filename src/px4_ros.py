@@ -189,7 +189,7 @@ if __name__ == '__main__':
 
     # Ask the user which mission file to read using src/px4_sitl/missions as a base path.
     mission_file = raw_input("Please enter the name of the mission:")
-    mission_file_path = os.path.abspath("src/px4_sitl/missions/" + mission_file)
+    mission_file_path = os.path.abspath("src/PX4_SITL/missions/" + mission_file)
     print mission_file_path
 
     # Start listening to the sate of the drone.
