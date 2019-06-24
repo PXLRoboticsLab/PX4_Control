@@ -11,14 +11,22 @@ from pymavlink import mavutil
 from threading import Thread
 
 
-class Px4Ros():
-    def __init__(self, topic_prefix=None, *args):
+class Px4Ros(Thread):
+    def __init__(self, topic_prefix=None, mission = [], *args):
+        Thread.__init__(self)
+
         # Set topics prefix. Will differentiate if it's a multi drone situation.
         # Defaults to single drone.
         if (topic_prefix == "") or (topic_prefix == None):
             self.topic_prefix = "mavros"
         else:
             self.topic_prefix = topic_prefix
+
+        self.rospy.init_node(self.topic_prefix, anonymous=True)
+
+        self.mission_item_reached = -1
+        # Mission object
+        self.mission = mission
 
         # Save the state of the drone.
         self.state = State()
@@ -46,6 +54,15 @@ class Px4Ros():
         self.hb_thread = Thread(target=self.heartbeat, args=())
         self.hb_thread.daemon = True
         self.hb_thread.start()
+
+    def run(self):
+        self.send_mission()
+        self.set_mode("AUTO.MISSION", 5)
+        self.set_arm(True, 5)
+        while(not self.is_mission_done()):
+            self.rospy.Rate(5).sleep()
+
+        self.rospy.spin()
 
     def state_callback(self, data):
         if self.state.armed != data.armed:
@@ -78,6 +95,14 @@ class Px4Ros():
                 rate.sleep()
             except rospy.ROSInterruptException as e:
                 print "Heartbeat thread error: %s" % e
+
+    def send_mission(self):
+        try:
+            res = self.wp_push_srv(start_index = 0, waypoints = self.mission)
+            if res.succes:
+                rospy.loginfo("Waypoints successfully transferred")
+        except rospy.ServiceException, e:
+            print "Service call failed: %s" % e
 
     def set_arm(self, arm, timeout):
         old_arm = self.state.armed
@@ -128,3 +153,14 @@ class Px4Ros():
                 rate.sleep()
             except rospy.ServiceException as e:
                 print e
+
+    def is_mission_done(self):
+        if self.mission_item_reached === len(self.mission):
+            return True
+        else:
+            return False
+
+    def mission_item_reached_callback(self, data):
+        if self.mission_item_reached != data.wp_seq:
+            rospy.loginfo("mission item reached: {0}".format(data.wp_seq))
+            self.mission_item_reached = data.wp_seq
