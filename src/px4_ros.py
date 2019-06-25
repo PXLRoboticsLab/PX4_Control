@@ -22,7 +22,7 @@ class Px4Ros(Thread):
         else:
             self.topic_prefix = topic_prefix
 
-        self.rospy.init_node(self.topic_prefix, anonymous=True)
+        rospy.init_node(self.topic_prefix, anonymous=True)
 
         self.mission_item_reached = -1
         # Mission object
@@ -43,7 +43,7 @@ class Px4Ros(Thread):
             rospy.wait_for_service(self.topic_prefix + '/mission/push', service_timeout)
             rospy.loginfo("ROS services are up.")
         except rospy.ROSException:
-            self.fail("Failed to connect to service.")
+            rospy.loginfo("Failed to connect to service.")
 
         self.set_mode_srv = rospy.ServiceProxy(self.topic_prefix + '/set_mode', SetMode)
         self.set_arming_srv = rospy.ServiceProxy(self.topic_prefix + '/cmd/arming', CommandBool)
@@ -70,12 +70,10 @@ class Px4Ros(Thread):
             .format(self.state.armed, data.armed))
 
         if self.state.connected != data.connected:
-            rospy.loginfo("Connected changed from {0} to {1}")
-            .format(self.state.connected, date.connected)
+            rospy.loginfo("Connected changed from {0} to {1}").format(self.state.connected, date.connected)
 
         if self.state.mode != data.mode:
-            rospy.loginfo("Mode changed from {0} to {1}")
-            .format(self.state.mode, data.mode))
+            rospy.loginfo("Mode changed from {0} to {1}").format(self.state.mode, data.mode)
 
         if self.state.system_status != data.system_status:
             rospy.loginfo("system_status changed from {0} to {1}"
@@ -132,7 +130,7 @@ class Px4Ros(Thread):
     def set_mode(self, mode, timeout):
         old_mode = self.state.mode
         loop_freq = 1 #Hz
-        rate rospy.Rate(loop_freq)
+        rospy.Rate(loop_freq)
         mode_set = False
 
         for i in xrange(timeout * loop_freq):
@@ -155,7 +153,7 @@ class Px4Ros(Thread):
                 print e
 
     def is_mission_done(self):
-        if self.mission_item_reached === len(self.mission):
+        if self.mission_item_reached == len(self.mission):
             return True
         else:
             return False
