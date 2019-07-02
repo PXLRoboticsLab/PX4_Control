@@ -48,18 +48,20 @@ if __name__ == '__main__':
     # Ask the user which mission file to read using src/px4_sitl/missions as a base path.
     mission_file = raw_input("Please enter the name of the mission:")
     mission_file_path = os.path.abspath("src/PX4_SITL/missions/" + mission_file)
-    print mission_file_path
-
+    rospy.init_node('test', anonymous=True)
+    rospy.loginfo(mission_file_path)
     mission = read_file(mission_file_path)
     threads = []
     for key in mission.keys():
-        print '-----------------------------------'
-        print key
-        print mission[key]
+        rospy.loginfo(key)
         wps = []
         for waypoint in mission_object_constructor(mission[key]):
             wps.append(waypoint)
-        
-        px4ros = Px4Ros(topic_prefix=key, mission=wps)
+            px4ros = Px4Ros(topic_prefix=key, mission=wps)
         threads.append(px4ros)
 
+    for thread in threads:
+        thread.start()
+
+    for thread in threads:
+        thread.join()
