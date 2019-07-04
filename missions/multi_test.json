@@ -1,4 +1,93 @@
 {
+    "uav1": {
+        "mission": {
+            "items": [{
+                    "frame": 3,
+                    "command": 22,
+                    "autoContinue": true,
+                    "params": [
+                        0,
+                        0,
+                        0,
+                        null,
+                        47.39773941040038,
+                        8.5455904006957,
+                        5
+                    ]
+                },
+                {
+                    "frame": 3,
+                    "command": 16,
+                    "autoContinue": true,
+                    "params": [
+                        0,
+                        0,
+                        0,
+                        null,
+                        47.39787292480468,
+                        8.54559326171874,
+                        10
+                    ]
+                },
+                {
+                    "frame": 3,
+                    "command": 16,
+                    "autoContinue": true,
+                    "params": [
+                        0,
+                        0,
+                        0,
+                        null,
+                        47.39787292480459,
+                        8.54559326171874,
+                        7
+                    ]
+                },
+                {
+                    "frame": 3,
+                    "command": 16,
+                    "autoContinue": true,
+                    "params": [
+                        0,
+                        0,
+                        0,
+                        null,
+                        47.39787292480468,
+                        8.545341491699218,
+                        10
+                    ]
+                },
+                {
+                    "frame": 3,
+                    "command": 16,
+                    "autoContinue": true,
+                    "params": [
+                        0,
+                        0,
+                        0,
+                        null,
+                        47.39773941040038,
+                        8.545336723327636,
+                        10
+                    ]
+                },
+                {
+                    "frame": 3,
+                    "command": 21,
+                    "autoContinue": true,
+                    "params": [
+                        0,
+                        0,
+                        0,
+                        null,
+                        47.39773941040038,
+                        8.545591354370116,
+                        0
+                    ]
+                }
+            ]
+        }
+    },
     "uav2": {
         "mission": {
             "items": [{
@@ -82,95 +171,6 @@
                         null,
                         47.39773941040039,
                         8.545591354370117,
-                        0
-                    ]
-                }
-            ]
-        }
-    },
-    "uav1": {
-        "mission": {
-            "items": [{
-                    "frame": 3,
-                    "command": 22,
-                    "autoContinue": true,
-                    "params": [
-                        0,
-                        0,
-                        0,
-                        null,
-                        47.39773941040038,
-                        8.5455904006959,
-                        5
-                    ]
-                },
-                {
-                    "frame": 3,
-                    "command": 16,
-                    "autoContinue": true,
-                    "params": [
-                        0,
-                        0,
-                        0,
-                        null,
-                        47.39787292480468,
-                        8.54559326171860,
-                        10
-                    ]
-                },
-                {
-                    "frame": 3,
-                    "command": 16,
-                    "autoContinue": true,
-                    "params": [
-                        0,
-                        0,
-                        0,
-                        null,
-                        47.39787292480461,
-                        8.54559326171874,
-                        7
-                    ]
-                },
-                {
-                    "frame": 3,
-                    "command": 16,
-                    "autoContinue": true,
-                    "params": [
-                        0,
-                        0,
-                        0,
-                        null,
-                        47.39787292480468,
-                        8.545341491699217,
-                        10
-                    ]
-                },
-                {
-                    "frame": 3,
-                    "command": 16,
-                    "autoContinue": true,
-                    "params": [
-                        0,
-                        0,
-                        0,
-                        null,
-                        47.39773941040038,
-                        8.545336723327636,
-                        10
-                    ]
-                },
-                {
-                    "frame": 3,
-                    "command": 21,
-                    "autoContinue": true,
-                    "params": [
-                        0,
-                        0,
-                        0,
-                        null,
-                        47.39773941040038,
-                        8.545591354370118,
                         0
                     ]
                 }

@@ -58,6 +58,8 @@ class Px4Ros(Thread):
         self.hb_thread.daemon = True
         self.hb_thread.start()
 
+        time.sleep(5)
+        
         self.send_mission(self.mission)
         self.set_mode("AUTO.MISSION", 5)
         self.set_arm(True, 5)
@@ -93,7 +95,7 @@ class Px4Ros(Thread):
             self.mavlink_pub.publish(hb_ros_msg)
             print "Tick tock heartbeat uav: %s " % self.topic_prefix
             try:
-                rate.sleep()
+                time.sleep(0.5)
             except rospy.ROSInterruptException as e:
                 print "Heartbeat thread error: %s" % e
 
