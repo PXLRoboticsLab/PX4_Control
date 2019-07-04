@@ -43,6 +43,21 @@ def mission_object_constructor(mission_json):
     else:
         raise IOError("no mission items")
 
+def heartbeat(topic_prefix):
+    mavlink_pub = rospy.Publisher(topic_prefix + '/mavlink/to', Mavlink, queue_size=1)
+    hb_mav_msg = mavutil.mavlink.MAVLink_heartbeat_message(mavutil.mavlink.MAV_TYPE_GCS, 0, 0, 0, 0, 0)
+    hb_mav_msg.pack(mavutil.mavlink.MAVLink('', 2, 1))
+    hb_ros_msg = mavlink.convert_to_rosmsg(hb_mav_msg)
+    rate = rospy.Rate(2)
+
+    while not rospy.is_shutdown():
+        mavlink_pub.publish(hb_ros_msg)
+        print "Tick tock heartbeat uav: %s " % topic_prefix
+        try:
+            rate.sleep()
+        except rospy.ROSInterruptException as e:
+            print "Heartbeat thread error: %s" % e
+
 
 if __name__ == '__main__':
     # Ask the user which mission file to read using src/px4_sitl/missions as a base path.
@@ -52,6 +67,8 @@ if __name__ == '__main__':
     rospy.loginfo(mission_file_path)
     mission = read_file(mission_file_path)
     threads = []
+    heartbeat = []
+
     for key in mission.keys():
         rospy.loginfo(key)
         wps = []
@@ -60,8 +77,16 @@ if __name__ == '__main__':
             px4ros = Px4Ros(topic_prefix=key, mission=wps)
         threads.append(px4ros)
 
+        heart_beat_thread = Thread(target=heartbeat, args=(key,))
+        heart_beat_thread.daemon = False
+        heart_beat_thread.start()
+
+    rospy.Rate(5).sleep()
+
     for thread in threads:
         thread.start()
 
     for thread in threads:
         thread.join()
+
+    rospy.spin()

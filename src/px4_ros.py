@@ -52,15 +52,15 @@ class Px4Ros(Thread):
         self.mavlink_pub = rospy.Publisher(self.topic_prefix + 'mavlink/to', Mavlink, queue_size=1)
 
     def run(self):
-        self.hb_thread = Thread(target=self.heartbeat, args=())
-        self.hb_thread.daemon = True
-        self.hb_thread.start()
+        #self.hb_thread = Thread(target=self.heartbeat, args=())
+        #self.hb_thread.daemon = True
+        #self.hb_thread.start()
 
         self.send_mission(self.mission)
+        rospy.Rate(5).sleep()
         self.set_mode("AUTO.MISSION", 5)
         self.set_arm(True, 5)
 
-        rospy.spin()
 
     def state_callback(self, data):
         if self.state.armed != data.armed:
