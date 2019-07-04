@@ -30,7 +30,7 @@ catkin build
 ### In the firmware folder of px4
 ```
 cd ~/Firmware
-make px4_sitl_default gazebo
+make posix_sitl_default gazebo
 ```
 
 ### In the your catkin workspace
