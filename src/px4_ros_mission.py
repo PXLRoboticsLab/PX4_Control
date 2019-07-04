@@ -19,7 +19,7 @@ def mission(mission_file_path):
         print e
     try:
         # Topic to which we have to push the waypoint array to.
-        wp_push_srv = rospy.ServiceProxy('mavros/mission/push', WaypointPush)
+        wp_push_srv = rospy.ServiceProxy('uav1/mavros/mission/push', WaypointPush)
         res = wp_push_srv(start_index = 0, waypoints = mission)
         if res.success:
             rospy.loginfo("waypoints successfully transferred")
@@ -29,7 +29,7 @@ def mission(mission_file_path):
 # Make sure the drone still thinks it has a connection to the base station.
 def send_heartbeat():
     # Topic to which we have to send the heartbeat to.
-    mavlink_pub = rospy.Publisher('mavlink/to', Mavlink, queue_size=1)
+    mavlink_pub = rospy.Publisher('uav1/mavlink/to', Mavlink, queue_size=1)
     hb_mav_msg = mavutil.mavlink.MAVLink_heartbeat_message(mavutil.mavlink.MAV_TYPE_GCS, 0, 0, 0, 0, 0)
     hb_mav_msg.pack(mavutil.mavlink.MAVLink('', 2, 1))
     hb_ros_msg = mavlink.convert_to_rosmsg(hb_mav_msg)
@@ -110,7 +110,7 @@ def set_mode(mode, timeout):
             break
         else:  
             # Topic to which we have to send the mode command.
-            set_mode_srv = rospy.ServiceProxy('mavros/set_mode', SetMode)
+            set_mode_srv = rospy.ServiceProxy('uav1/mavros/set_mode', SetMode)
             try:
                 res = set_mode_srv(0, mode)
                 if not res.mode_sent:
@@ -142,7 +142,7 @@ def set_arm(arm, timeout):
             break
         else:
             # Topic to which we have to send the arming command.
-            set_arming_srv = rospy.ServiceProxy('mavros/cmd/arming', CommandBool)
+            set_arming_srv = rospy.ServiceProxy('uav1/mavros/cmd/arming', CommandBool)
             try:
                 res = set_arming_srv(arm)
                 if not res.success:

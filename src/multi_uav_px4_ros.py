@@ -77,16 +77,14 @@ if __name__ == '__main__':
             px4ros = Px4Ros(topic_prefix=key, mission=wps)
         threads.append(px4ros)
 
-        heart_beat_thread = Thread(target=heartbeat, args=(key,))
-        heart_beat_thread.daemon = False
-        heart_beat_thread.start()
+        #heart_beat_thread = Thread(target=heartbeat, args=(key,))
+        #heart_beat_thread.daemon = False
+        #heart_beat_thread.start()
 
-    rospy.Rate(5).sleep()
+    #rospy.Rate(5).sleep()
 
     for thread in threads:
         thread.start()
 
     for thread in threads:
         thread.join()
-
-    rospy.spin()

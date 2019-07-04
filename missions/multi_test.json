@@ -1,5 +1,5 @@
 {
-    "uav1": {
+    "uav2": {
         "mission": {
             "items": [{
                     "frame": 3,
@@ -88,7 +88,7 @@
             ]
         }
     },
-    "uav2": {
+    "uav1": {
         "mission": {
             "items": [{
                     "frame": 3,

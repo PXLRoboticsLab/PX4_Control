@@ -2,10 +2,11 @@
 import rospy
 import os
 import json
+import time
 
 from sensor_msgs.msg import Imu
 from mavros import mavlink
-from mavros_msgs.msg import Mavlink, Waypoint, WaypointReached, State
+from mavros_msgs.msg import Mavlink, Waypoint, WaypointReached, State, WaypointList
 from mavros_msgs.srv import WaypointPush, SetMode, CommandBool
 from pymavlink import mavutil
 from threading import Thread
@@ -21,8 +22,6 @@ class Px4Ros(Thread):
             self.topic_prefix = ""
         else:
             self.topic_prefix = topic_prefix + '/'
-
-        
 
         self.mission_item_reached = -1
         # Mission object
@@ -51,16 +50,21 @@ class Px4Ros(Thread):
         self.state_sub = rospy.Subscriber(self.topic_prefix + 'mavros/state', State, self.state_callback)
         self.mavlink_pub = rospy.Publisher(self.topic_prefix + 'mavlink/to', Mavlink, queue_size=1)
 
+        self.mission_wp_sub = rospy.Subscriber(self.topic_prefix + 'mavros/mission/waypoints', WaypointList, self.mission_item_reached_callback)
+
     def run(self):
-        #self.hb_thread = Thread(target=self.heartbeat, args=())
-        #self.hb_thread.daemon = True
-        #self.hb_thread.start()
+        print self.topic_prefix + ": Starting thread"
+        self.hb_thread = Thread(target=self.heartbeat, args=())
+        self.hb_thread.daemon = True
+        self.hb_thread.start()
 
         self.send_mission(self.mission)
-        rospy.Rate(5).sleep()
         self.set_mode("AUTO.MISSION", 5)
         self.set_arm(True, 5)
 
+        while not self.is_mission_done():
+            rospy.loginfo("{0} is still running".format(self.topic_prefix))
+            time.sleep(2)
 
     def state_callback(self, data):
         if self.state.armed != data.armed:
@@ -74,7 +78,7 @@ class Px4Ros(Thread):
             rospy.loginfo("{0}: Mode changed from {1} to {2}".format(self.topic_prefix, self.state.mode, data.mode))
 
         if self.state.system_status != data.system_status:
-            rospy.loginfo("{0}: ystem_status changed from {1} to {2}"
+            rospy.loginfo("{0}: System_status changed from {1} to {2}"
             .format(self.topic_prefix, mavutil.mavlink.enums['MAV_STATE']
             [self.state.system_status].name, mavutil.mavlink.enums
             ['MAV_STATE'][data.system_status].name))
@@ -152,12 +156,17 @@ class Px4Ros(Thread):
                 print e
 
     def is_mission_done(self):
+        print self.topic_prefix + " is mission done"
+        print self.mission_item_reached
+        print len(self.mission)
         if self.mission_item_reached == len(self.mission):
             return True
         else:
             return False
 
     def mission_item_reached_callback(self, data):
-        if self.mission_item_reached != data.wp_seq:
-            rospy.loginfo("mission item reached: {0}".format(data.wp_seq))
-            self.mission_item_reached = data.wp_seq
+        print self.topic_prefix + " is mission done callback"
+        print data
+        if self.mission_item_reached != data.current_seq:
+            rospy.loginfo("mission item reached: {0}".format(data.current_seq))
+            self.mission_item_reached = data.current_seq
