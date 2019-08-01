@@ -5,31 +5,61 @@ import json
 
 from sensor_msgs.msg import Imu
 from mavros import mavlink
-from mavros_msgs.msg import Mavlink, Waypoint, WaypointReached, State
+from mavros_msgs.msg import Mavlink, Waypoint, WaypointReached, State, WaypointList
 from mavros_msgs.srv import WaypointPush, SetMode, CommandBool
 from pymavlink import mavutil
 from threading import Thread
 
 state = State()
+mission_wp = WaypointList()
 # Execute the mission that has been specified.
 def mission(mission_file_path):
     try:
         mission = read_mission(mission_file_path)
     except IOError as e:
         print e
-    try:
-        # Topic to which we have to push the waypoint array to.
-        wp_push_srv = rospy.ServiceProxy('uav1/mavros/mission/push', WaypointPush)
-        res = wp_push_srv(start_index = 0, waypoints = mission)
-        if res.success:
-            rospy.loginfo("waypoints successfully transferred")
-    except rospy.ServiceException, e:
-        print "Service call failed: %s" % e
+
+    send_wps(mission, 30)
+
+def send_wps(waypoints, timeout):
+    global mission_wp
+    rospy.loginfo("sending mission waypoints")
+    loop_freq = 1 # Hz
+    rate = rospy.Rate(loop_freq)
+    wps_sent = False
+    wps_verified = False
+
+    wp_push_srv = rospy.ServiceProxy('mavros/mission/push', WaypointPush)
+
+    for i in xrange(timeout * loop_freq):
+        if not wps_sent:
+            try:
+                res = wp_push_srv(start_index = 0, waypoints = waypoints)
+                wps_sent = res.success
+                if wps_sent:
+                    rospy.loginfo("waypoints successfully transferred")
+            except rospy.ServiceException as e:
+                rospy.logerr(e)
+        else:
+            if len(waypoints) == len(mission_wp.waypoints):
+                rospy.loginfo("number of waypoints transferred: {0}".
+                              format(len(waypoints)))
+                wps_verified = True
+
+        if wps_sent and wps_verified:
+            rospy.loginfo("send waypoints success | seconds: {0} of {1}".
+                          format(i / loop_freq, timeout))
+            break
+
+        try:
+            rate.sleep()
+        except rospy.ROSException as e:
+            rospy.logerr(e)
 
 # Make sure the drone still thinks it has a connection to the base station.
 def send_heartbeat():
     # Topic to which we have to send the heartbeat to.
-    mavlink_pub = rospy.Publisher('uav1/mavlink/to', Mavlink, queue_size=1)
+    mavlink_pub = rospy.Publisher('mavlink/to', Mavlink, queue_size=1)
     hb_mav_msg = mavutil.mavlink.MAVLink_heartbeat_message(mavutil.mavlink.MAV_TYPE_GCS, 0, 0, 0, 0, 0)
     hb_mav_msg.pack(mavutil.mavlink.MAVLink('', 2, 1))
     hb_ros_msg = mavlink.convert_to_rosmsg(hb_mav_msg)
@@ -110,7 +140,7 @@ def set_mode(mode, timeout):
             break
         else:  
             # Topic to which we have to send the mode command.
-            set_mode_srv = rospy.ServiceProxy('uav1/mavros/set_mode', SetMode)
+            set_mode_srv = rospy.ServiceProxy('mavros/set_mode', SetMode)
             try:
                 res = set_mode_srv(0, mode)
                 if not res.mode_sent:
@@ -142,7 +172,7 @@ def set_arm(arm, timeout):
             break
         else:
             # Topic to which we have to send the arming command.
-            set_arming_srv = rospy.ServiceProxy('uav1/mavros/cmd/arming', CommandBool)
+            set_arming_srv = rospy.ServiceProxy('mavros/cmd/arming', CommandBool)
             try:
                 res = set_arming_srv(arm)
                 if not res.success:
@@ -184,6 +214,13 @@ def state_callback(data):
     # Set the global status object to the current one we got back from the drone via the topic.
     state = data
 
+def mission_wp_callback(data):
+    global mission_wp
+    if mission_wp.current_seq != data.current_seq:
+        rospy.loginfo("current mission waypoint sequence updated: {0}".format(data.current_seq))
+
+    mission_wp = data
+
 if __name__ == '__main__':
     rospy.init_node('test_node', anonymous=True)
 
@@ -194,7 +231,7 @@ if __name__ == '__main__':
 
     # Start listening to the sate of the drone.
     state_sub = rospy.Subscriber('mavros/state', State, state_callback)
-
+    mission_wp_sub = rospy.Subscriber('mavros/mission/waypoints', WaypointList, mission_wp_callback)
     # Start the heartbeat to the drone.
     hb_thread = Thread(target=send_heartbeat, args=())
     hb_thread.daemon = True
