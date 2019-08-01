@@ -56,6 +56,7 @@ def send_wps(waypoints, timeout):
         except rospy.ROSException as e:
             rospy.logerr(e)
 
+
 # Make sure the drone still thinks it has a connection to the base station.
 def send_heartbeat():
     # Topic to which we have to send the heartbeat to.
@@ -111,7 +112,7 @@ def read_plan_file(f):
                              if wp['params'][1] is None else wp['params'][1]),
                 param3=float('nan'
                              if wp['params'][2] is None else wp['params'][2]),
-                param4=float('nan'
+                param4=float('nan control'
                              if wp['params'][3] is None else wp['params'][3]),
                 x_lat=float(wp['params'][4]),
                 y_long=float(wp['params'][5]),
