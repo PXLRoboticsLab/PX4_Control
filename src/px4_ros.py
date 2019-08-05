@@ -53,7 +53,7 @@ class Px4Ros(Thread):
         self.mission_wp_sub = rospy.Subscriber(self.topic_prefix + 'mavros/mission/waypoints', WaypointList, self.mission_item_reached_callback)
 
     def run(self):
-        print self.topic_prefix + ": Starting thread"
+        rospy.loginfo("{0}: Starting thread").format(self.topic_prefix)
         self.hb_thread = Thread(target=self.heartbeat, args=())
         self.hb_thread.daemon = True
         self.hb_thread.start()
@@ -93,7 +93,7 @@ class Px4Ros(Thread):
 
         while not rospy.is_shutdown():
             self.mavlink_pub.publish(hb_ros_msg)
-            print "Tick tock heartbeat uav: %s " % self.topic_prefix
+            rospy.loginfo( "Tick tock heartbeat uav: {0}").format(self.topic_prefix)
             try:
                 time.sleep(0.5)
             except rospy.ROSInterruptException as e:

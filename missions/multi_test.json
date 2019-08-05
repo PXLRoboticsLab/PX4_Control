@@ -234,50 +234,8 @@
                         0,
                         0,
                         null,
-                        47.397120,
-                        8.545100,
-                        15
-                    ]
-                },
-                {
-                    "frame": 3,
-                    "command": 16,
-                    "autoContinue": true,
-                    "params": [
-                        0,
-                        0,
-                        0,
-                        null,
-                        47.397169,
-                        8.545100,
-                        15
-                    ]
-                },
-                {
-                    "frame": 3,
-                    "command": 16,
-                    "autoContinue": true,
-                    "params": [
-                        0,
-                        0,
-                        0,
-                        null,
-                        47.397170,
-                        8.545194,
-                        15
-                    ]
-                },
-                {
-                    "frame": 3,
-                    "command": 16,
-                    "autoContinue": true,
-                    "params": [
-                        0,
-                        0,
-                        0,
-                        null,
                         47.397175,
-                        8.5545199,
+                        8.554519,
                         15
                     ]
                 },
