@@ -97,7 +97,7 @@ class Px4Ros(Thread):
             try:
                 time.sleep(0.5)
             except rospy.ROSInterruptException as e:
-                print "Heartbeat thread error: %s" % e
+                rospy.logerr("Heartbeat thread error: {0}".format(e))
 
     def send_mission(self, mission):
         try:
@@ -105,7 +105,7 @@ class Px4Ros(Thread):
             if res.success:
                 rospy.loginfo("Waypoints successfully transferred")
         except rospy.ServiceException, e:
-            print "Service call failed: %s" % e
+            rospy.logerr("Service call failed: {0}".format(e))
 
     def set_arm(self, arm, timeout):
         old_arm = self.state.armed
@@ -125,12 +125,12 @@ class Px4Ros(Thread):
                     if not res.success:
                         rospy.logerr("Failed to send arm command")
                 except rospy.ServiceException as e:
-                    print "Service call failed: %s" % e
+                    rospy.logerr("Service call failed: {0}".format(e))
 
             try:
                 rate.sleep()
             except rospy.ROSException as e:
-                print e
+                rospy.logerr(e)
 
     def set_mode(self, mode, timeout):
         old_mode = self.state.mode
@@ -150,25 +150,22 @@ class Px4Ros(Thread):
                     if not res.mode_sent:
                         rospy.logerr("Failed to send mode command")
                 except rospy.ServiceException as e:
-                    print "Service call failed: %s" % e
+                    rospy.logerr("Service call failed: {0}".format(e))
 
             try:
                 rate.sleep()
             except rospy.ServiceException as e:
-                print e
+                rospy.logerr("Service call failed: {0}".format(e))
 
     def is_mission_done(self):
-        print self.topic_prefix + " is mission done"
-        print self.mission_item_reached
-        print len(self.mission)
+        rospy.loginfo("{0} is mission Done: current: {1} target: {2}".format(self.topic_prefix, self.mission_item_reached, len(self.mission)))
         if self.mission_item_reached == len(self.mission):
             return True
         else:
             return False
 
     def mission_item_reached_callback(self, data):
-        print self.topic_prefix + " is mission done callback"
-        print data
+        rospy.loginfo("{0} is mission done callback".format(self.topic_prefix))
         if self.mission_item_reached != data.current_seq:
             rospy.loginfo("mission item reached: {0}".format(data.current_seq))
             self.mission_item_reached = data.current_seq
