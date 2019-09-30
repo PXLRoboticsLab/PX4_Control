@@ -2,11 +2,15 @@
 import rospy
 import os
 import json
+import time
 
 from sensor_msgs.msg import Imu
 from mavros import mavlink
-from mavros_msgs.msg import Mavlink, Waypoint, WaypointReached, State
+from mavros_msgs.msg import Mavlink, Waypoint, WaypointReached, State, AttitudeTarget, PositionTarget
 from mavros_msgs.srv import WaypointPush, SetMode, CommandBool
+from geometry_msgs.msg import PoseStamped, TwistStamped, Twist, Vector3, Pose
+from std_msgs.msg import Float32, Float64
+
 from pymavlink import mavutil
 from threading import Thread
 
@@ -58,6 +62,70 @@ def send_heartbeat():
         except rospy.ROSInterruptException as e :
             rospy.logerr( "Heartbeat thread error: {0}".format(e))
 
+# Set the drone mode to AUTO.MISSION inorder the execute the mission commands automatically.
+def set_mode(mode, timeout):
+    # Make sure that the global object state gets used for to local one.
+    global state
+
+    # Save the old mode state.
+    old_mode = state.mode
+    loop_freq = 1 # Hz
+    rate = rospy.Rate(loop_freq)
+    mode_set = False
+
+    # Try setting the mode till the timeout expires or the correct mode is set.
+    for i in xrange(timeout * loop_freq):
+        if state.mode == mode:
+            mode_set = True
+            rospy.loginfo("set mode success | seconds: {0} of {1}".format(
+                i / loop_freq, timeout))
+            break
+        else:  
+            # Topic to which we have to send the mode command.
+            set_mode_srv = rospy.ServiceProxy('mavros/set_mode', SetMode)
+            try:
+                res = set_mode_srv(0, mode)
+                if not res.mode_sent:
+                    rospy.logerr("failed to send mode command")
+            except rospy.ServiceException as e:
+                    print "Service call failed: %s" % e
+
+        try:
+            rate.sleep()
+        except rospy.ROSException as e:
+            print(e)
+
+def set_arm(arm, timeout):
+    # Make sure that the global object state gets used for to local one.
+    global state
+
+    # Save the old arm state.
+    old_arm = state.armed
+    loop_freq = 1 # Hz
+    rate = rospy.Rate(loop_freq)
+    arm_set = False
+    # Try setting the arm till the timeout expires or the correct arm is set.
+    for i in xrange(timeout * loop_freq):
+        if state.armed == arm:
+            arm_set = True
+            rospy.loginfo("set arm success | seconds: {0} of {1}".format(
+            i / loop_freq, timeout))
+            break
+        else:
+            # Topic to which we have to send the arming command.
+            set_arming_srv = rospy.ServiceProxy('mavros/cmd/arming', CommandBool)
+            try:
+                res = set_arming_srv(arm)
+                if not res.success:
+                    rospy.logerr("failed to send arm command")
+            except rospy.ServiceException as e:
+                print "Service call failed: %s" % e
+
+        try:
+            rate.sleep()
+        except rospy.ROSException as e:
+            print(e)
+
 if __name__ == '__main__':
     rospy.init_node('test_node', anonymous=True)
     state_sub = rospy.Subscriber('mavros/state', State, state_callback)
@@ -67,3 +135,78 @@ if __name__ == '__main__':
     hb_thread.daemon = True
     hb_thread.start()
     rospy.Rate(5).sleep()
+
+    cmd_vel = rospy.Publisher('mavros/setpoint_attiude/cmd_vel', TwistStamped, queue_size=100)
+    set_thr_pub = rospy.Publisher('mavros/setpoint_attiude/thrust', Float32, queue_size=100)
+    set_raw_local = rospy.Publisher('/mavros/setpoint_raw/local', PositionTarget, queue_size=100)
+    set_att_pub = rospy.Publisher('mavros/setpoint_attiude/attitude', PoseStamped, queue_size=100)
+    set_pos_pub = rospy.Publisher('mavros/setpoint_position/local', PoseStamped, queue_size=10)
+    set_raw_att = rospy.Publisher('mavros/setpoint_raw/atittude', AttitudeTarget, queue_size=100)
+    rate = rospy.Rate(20)
+
+
+    att_cmd = PositionTarget()
+    att_cmd.coordinate_frame = 8
+    att_cmd.type_mask = 4
+    att_cmd.velocity = Vector3()
+    att_cmd.velocity.x = 0
+    att_cmd.velocity.y = 0
+    att_cmd.velocity.z = 0.5
+
+    for i in range(0, 100):
+        set_raw_local.publish(att_cmd)
+        rate.sleep()
+
+    set_mode("OFFBOARD", 5)
+    set_arm(True, 5)
+
+    att_cmd.velocity.x = 1
+    att_cmd.velocity.y = 0.5
+    att_cmd.velocity.z = 0.1
+    while not rospy.is_shutdown():
+        set_raw_local.publish(att_cmd)
+        rate.sleep()
+
+    '''
+    att_cmd = PoseStamped()
+    att_cmd.pose = Pose()
+    att_cmd.pose.position.x = 0
+    att_cmd.pose.position.y = 0
+    att_cmd.pose.position.z = 2
+    for i in range(0,100):
+        set_pos_pub.publish(att_cmd)
+        rate.sleep()
+
+    set_mode("OFFBOARD", 5)
+    set_arm(True, 5)
+
+    att_cmd.pose.position.y = 1
+    while not rospy.is_shutdown():
+        att_cmd.pose.position.y += 0.1
+        set_pos_pub.publish(att_cmd)
+        rate.sleep()
+
+    
+
+    att_cmd = PoseStamped()
+    att_cmd.pose = Pose()
+    att_cmd.pose.position.x = 0
+    att_cmd.pose.position.y = 0
+    att_cmd.pose.position.z = 2
+
+    for i in range(0,100):
+        set_att_pub.publish(att_cmd)
+        set_thr_pub.publish(Float32(0.5))
+        rate.sleep()
+
+    set_mode("OFFBOARD", 5)
+    set_arm(True, 5)
+
+    while not rospy.is_shutdown():
+
+        print 'Sending att and thr commands'
+        set_att_pub.publish(att_cmd)
+        set_thr_pub.publish(Float32(0.5))
+
+        rate.sleep()
+    '''
