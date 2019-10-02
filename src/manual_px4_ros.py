@@ -3,6 +3,11 @@ import rospy
 import os
 import json
 import time
+import select
+import sys
+import termios
+import tty
+import queue
 
 from sensor_msgs.msg import Imu
 from mavros import mavlink
@@ -15,6 +20,7 @@ from pymavlink import mavutil
 from threading import Thread
 
 state = State()
+q = queue.Queue(maxsize = 10)
 # mavros /mavros/setpoint_velocity/cmd_vel
 # https://github.com/weiweikong/px4_velocity_control_keyboard/blob/master/src/px4_velocity_control_node.cpp
 # https://answers.ros.org/question/207097/how-to-send-velocity-to-pixhawk-with-mavros/
@@ -126,7 +132,25 @@ def set_arm(arm, timeout):
         except rospy.ROSException as e:
             print(e)
 
+def get_key():
+    tty.setraw(sys.stdin.fileno())
+    select.select([sys.stdin], [], [], 0)
+    pressed_key = sys.stdin.read(1)
+    termios.tcsetattr(sys.stdin, termios.TCSADRAIN, settings)
+    return pressed_key
+
+def keyboardListener():
+    while not rospy.is_shutdown():
+        key = get_key()
+        # Check if control^c or control^z is pressed.
+        if key == '\x03' or key == '\x1A':
+            break
+
+        q.put(key)
+
+
 if __name__ == '__main__':
+    settings = termios.tcgetattr(sys.stdin)
     rospy.init_node('test_node', anonymous=True)
     state_sub = rospy.Subscriber('mavros/state', State, state_callback)
 
@@ -136,6 +160,10 @@ if __name__ == '__main__':
     hb_thread.start()
     rospy.Rate(5).sleep()
 
+    kb_thread = Thread(target=keyboardListener, args=())
+    kb_thread.daemon = True
+    kb_thread.start()
+
     cmd_vel = rospy.Publisher('mavros/setpoint_attiude/cmd_vel', TwistStamped, queue_size=100)
     set_thr_pub = rospy.Publisher('mavros/setpoint_attiude/thrust', Float32, queue_size=100)
     set_raw_local = rospy.Publisher('/mavros/setpoint_raw/local', PositionTarget, queue_size=100)
@@ -144,10 +172,9 @@ if __name__ == '__main__':
     set_raw_att = rospy.Publisher('mavros/setpoint_raw/atittude', AttitudeTarget, queue_size=100)
     rate = rospy.Rate(20)
 
-
     att_cmd = PositionTarget()
     att_cmd.coordinate_frame = 8
-    att_cmd.type_mask = 4
+    att_cmd.type_mask = 7
     att_cmd.velocity = Vector3()
     att_cmd.velocity.x = 0
     att_cmd.velocity.y = 0
@@ -160,10 +187,43 @@ if __name__ == '__main__':
     set_mode("OFFBOARD", 5)
     set_arm(True, 5)
 
-    att_cmd.velocity.x = 1
-    att_cmd.velocity.y = 0.5
-    att_cmd.velocity.z = 0.1
+    att_cmd.velocity.x = 0
+    att_cmd.velocity.y = 0
+    att_cmd.velocity.z = 0
+    att_cmd.yaw = 0
+
     while not rospy.is_shutdown():
+
+        if not q.empty():
+            key = q.get()
+            # Left and right.
+            if key == "d":
+                att_cmd.velocity.x += 0.1
+            if key == "q":
+                att_cmd.velocity.x -= 0.1
+            # Forward and backwards.
+            if key == "z":
+                att_cmd.velocity.y += 0.1
+            if key == "s":
+            # Up and down.
+                att_cmd.velocity.y -= 0.1
+            if key == "a":
+                att_cmd.velocity.z += 0.1
+            if key == "e":
+            # Yaw left and right.
+                att_cmd.velocity.z -= 0.1
+            if key == "f":
+                att_cmd.yaw += 0.1
+            if key == "v":
+                att_cmd.yaw -= 0.1
+            # Stop all movement.
+            if key == "r":
+                att_cmd.velocity.x = 0
+                att_cmd.velocity.y = 0
+                att_cmd.velocity.z = 0
+                att_cmd.yaw = 0
+
+
         set_raw_local.publish(att_cmd)
         rate.sleep()
 
@@ -185,9 +245,9 @@ if __name__ == '__main__':
         att_cmd.pose.position.y += 0.1
         set_pos_pub.publish(att_cmd)
         rate.sleep()
+    '''
 
-    
-
+    '''
     att_cmd = PoseStamped()
     att_cmd.pose = Pose()
     att_cmd.pose.position.x = 0
