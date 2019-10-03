@@ -164,12 +164,14 @@ if __name__ == '__main__':
     kb_thread.daemon = True
     kb_thread.start()
 
-    cmd_vel = rospy.Publisher('mavros/setpoint_attiude/cmd_vel', TwistStamped, queue_size=100)
-    set_thr_pub = rospy.Publisher('mavros/setpoint_attiude/thrust', Float32, queue_size=100)
     set_raw_local = rospy.Publisher('/mavros/setpoint_raw/local', PositionTarget, queue_size=100)
+
+    '''
     set_att_pub = rospy.Publisher('mavros/setpoint_attiude/attitude', PoseStamped, queue_size=100)
     set_pos_pub = rospy.Publisher('mavros/setpoint_position/local', PoseStamped, queue_size=10)
     set_raw_att = rospy.Publisher('mavros/setpoint_raw/atittude', AttitudeTarget, queue_size=100)
+    '''
+
     rate = rospy.Rate(20)
 
     att_cmd = PositionTarget()
@@ -193,36 +195,39 @@ if __name__ == '__main__':
     att_cmd.yaw = 0
 
     while not rospy.is_shutdown():
-
         if not q.empty():
             key = q.get()
+
             # Left and right.
             if key == "d":
                 att_cmd.velocity.x += 0.1
             if key == "q":
                 att_cmd.velocity.x -= 0.1
+
             # Forward and backwards.
             if key == "z":
                 att_cmd.velocity.y += 0.1
             if key == "s":
-            # Up and down.
                 att_cmd.velocity.y -= 0.1
+
+            # Up and down.
             if key == "a":
                 att_cmd.velocity.z += 0.1
             if key == "e":
-            # Yaw left and right.
                 att_cmd.velocity.z -= 0.1
+
+            # Yaw left and right.
             if key == "f":
                 att_cmd.yaw += 0.1
             if key == "v":
                 att_cmd.yaw -= 0.1
+
             # Stop all movement.
             if key == "r":
                 att_cmd.velocity.x = 0
                 att_cmd.velocity.y = 0
                 att_cmd.velocity.z = 0
                 att_cmd.yaw = 0
-
 
         set_raw_local.publish(att_cmd)
         rate.sleep()
