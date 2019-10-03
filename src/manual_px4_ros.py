@@ -86,7 +86,7 @@ def set_mode(mode, timeout):
             rospy.loginfo("set mode success | seconds: {0} of {1}".format(
                 i / loop_freq, timeout))
             break
-        else:  
+        else:
             # Topic to which we have to send the mode command.
             set_mode_srv = rospy.ServiceProxy('mavros/set_mode', SetMode)
             try:
