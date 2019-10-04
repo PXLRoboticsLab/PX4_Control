@@ -56,7 +56,7 @@ def state_callback(data):
 
 def send_heartbeat():
     # Topic to which we have to send the heartbeat to.
-    mavlink_pub = rospy.Publisher('mavlink/to', Mavlink, queue_size=1)
+    mavlink_pub = rospy.Publisher('uav1/mavlink/to', Mavlink, queue_size=1)
     hb_mav_msg = mavutil.mavlink.MAVLink_heartbeat_message(mavutil.mavlink.MAV_TYPE_GCS, 0, 0, 0, 0, 0)
     hb_mav_msg.pack(mavutil.mavlink.MAVLink('', 2, 1))
     hb_ros_msg = mavlink.convert_to_rosmsg(hb_mav_msg)
@@ -88,7 +88,7 @@ def set_mode(mode, timeout):
             break
         else:
             # Topic to which we have to send the mode command.
-            set_mode_srv = rospy.ServiceProxy('mavros/set_mode', SetMode)
+            set_mode_srv = rospy.ServiceProxy('uav1/mavros/set_mode', SetMode)
             try:
                 res = set_mode_srv(0, mode)
                 if not res.mode_sent:
@@ -119,7 +119,7 @@ def set_arm(arm, timeout):
             break
         else:
             # Topic to which we have to send the arming command.
-            set_arming_srv = rospy.ServiceProxy('mavros/cmd/arming', CommandBool)
+            set_arming_srv = rospy.ServiceProxy('uav1/mavros/cmd/arming', CommandBool)
             try:
                 res = set_arming_srv(arm)
                 if not res.success:
@@ -152,7 +152,7 @@ def keyboardListener():
 if __name__ == '__main__':
     settings = termios.tcgetattr(sys.stdin)
     rospy.init_node('test_node', anonymous=True)
-    state_sub = rospy.Subscriber('mavros/state', State, state_callback)
+    state_sub = rospy.Subscriber('uav1/mavros/state', State, state_callback)
 
     # Start the heartbeat to the drone.
     hb_thread = Thread(target=send_heartbeat, args=())
@@ -164,7 +164,7 @@ if __name__ == '__main__':
     kb_thread.daemon = True
     kb_thread.start()
 
-    set_raw_local = rospy.Publisher('/mavros/setpoint_raw/local', PositionTarget, queue_size=100)
+    set_raw_local = rospy.Publisher('uav1/mavros/setpoint_raw/local', PositionTarget, queue_size=100)
 
     '''
     set_att_pub = rospy.Publisher('mavros/setpoint_attiude/attitude', PoseStamped, queue_size=100)
@@ -191,7 +191,7 @@ if __name__ == '__main__':
 
     att_cmd.velocity.x = 0
     att_cmd.velocity.y = 0
-    att_cmd.velocity.z = 0
+    att_cmd.velocity.z = 0.1
     att_cmd.yaw = 0
 
     while not rospy.is_shutdown():
