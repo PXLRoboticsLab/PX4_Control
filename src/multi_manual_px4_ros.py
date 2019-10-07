@@ -30,8 +30,6 @@ class Multi_px4(Thread):
         else:
             self.topic_prefix = topic_prefix + '/'
 
-
-
     def run(self):
         self.state = State()
         self.set_arming_srv = rospy.ServiceProxy(self.topic_prefix + 'mavros/cmd/arming', CommandBool)
