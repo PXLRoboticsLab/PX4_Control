@@ -45,9 +45,10 @@ roslaunch mavros px4.launch fcu_url:="udp://:14540@192.168.1.36:14557"
 
 ## Compile px4 and launch multi uav
 
-### In hte firmware folder of px4
+### In the firmware folder of px4
 ```
-cd ̃̃~/Firmware
+cd ~/Firmware
+
 git submodule update --init --recursive
 DONT_RUN=1 make px4_sitl_default gazebo
 
