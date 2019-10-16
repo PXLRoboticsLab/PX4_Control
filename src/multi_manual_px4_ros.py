@@ -19,8 +19,9 @@ from std_msgs.msg import Float32, Float64
 from pymavlink import mavutil
 from threading import Thread
 
+
 class Multi_px4(Thread):
-    def __init__(self, topic_prefix=None, actionQueue = queue, *args):
+    def __init__(self, topic_prefix=None, actionQueue=queue, *args):
         Thread.__init__(self)
         self.actionQueue = actionQueue
         # Set topics prefix. Will differentiate if it's a multi drone situation.
@@ -32,11 +33,16 @@ class Multi_px4(Thread):
 
     def run(self):
         self.state = State()
-        self.set_arming_srv = rospy.ServiceProxy(self.topic_prefix + 'mavros/cmd/arming', CommandBool)
-        self.set_mode_srv = rospy.ServiceProxy(self.topic_prefix + 'mavros/set_mode', SetMode)
-        self.mavlink_pub = rospy.Publisher(self.topic_prefix + 'mavlink/to', Mavlink, queue_size=1)
-        self.set_raw_local = rospy.Publisher(self.topic_prefix + 'mavros/setpoint_raw/local', PositionTarget, queue_size=100)
-        self.state_sub = rospy.Subscriber(self.topic_prefix + 'mavros/state', State, self.state_callback)
+        self.set_arming_srv = rospy.ServiceProxy(
+            self.topic_prefix + 'mavros/cmd/arming', CommandBool)
+        self.set_mode_srv = rospy.ServiceProxy(
+            self.topic_prefix + 'mavros/set_mode', SetMode)
+        self.mavlink_pub = rospy.Publisher(
+            self.topic_prefix + 'mavlink/to', Mavlink, queue_size=1)
+        self.set_raw_local = rospy.Publisher(
+            self.topic_prefix + 'mavros/setpoint_raw/local', PositionTarget, queue_size=100)
+        self.state_sub = rospy.Subscriber(
+            self.topic_prefix + 'mavros/state', State, self.state_callback)
 
         rospy.loginfo("{0}: Starting thread".format(self.topic_prefix))
 
@@ -108,30 +114,31 @@ class Multi_px4(Thread):
         # If there is a change in armed status display it.
         if self.state.armed != data.armed:
             rospy.loginfo("armed state changed from {0} to {1}"
-            .format(self.state.armed, data.armed))
+                          .format(self.state.armed, data.armed))
 
         # If there is a change in connection status display it.
         if self.state.connected != data.connected:
             rospy.loginfo("connected changed from {0} to {1}"
-            .format(self.state.connected, data.connected))
+                          .format(self.state.connected, data.connected))
 
         # If there is a change is mode status display it.
         if self.state.mode != data.mode:
             rospy.loginfo("mode changed from {0} to {1}"
-            .format(self.state.mode, data.mode))
+                          .format(self.state.mode, data.mode))
 
         # If there is a a change in system status display it.
         if self.state.system_status != data.system_status:
             rospy.loginfo("system_status changed from {0} to {1}"
-            .format(mavutil.mavlink.enums['MAV_STATE']
-            [self.state.system_status].name, mavutil.mavlink.enums
-            ['MAV_STATE'][data.system_status].name))
+                          .format(mavutil.mavlink.enums['MAV_STATE']
+                                  [self.state.system_status].name, mavutil.mavlink.enums
+                                  ['MAV_STATE'][data.system_status].name))
 
         # Set the global status object to the current one we got back from the drone via the topic.
         self.state = data
 
     def send_heartbeat(self):
-        hb_mav_msg = mavutil.mavlink.MAVLink_heartbeat_message(mavutil.mavlink.MAV_TYPE_GCS, 0, 0, 0, 0, 0)
+        hb_mav_msg = mavutil.mavlink.MAVLink_heartbeat_message(
+            mavutil.mavlink.MAV_TYPE_GCS, 0, 0, 0, 0, 0)
         hb_mav_msg.pack(mavutil.mavlink.MAVLink('', 2, 1))
         hb_ros_msg = mavlink.convert_to_rosmsg(hb_mav_msg)
         rate = rospy.Rate(2)
@@ -139,14 +146,14 @@ class Multi_px4(Thread):
             self.mavlink_pub.publish(hb_ros_msg)
             try:  # prevent garbage in console output when thread is killed.
                 rate.sleep()
-            except rospy.ROSInterruptException as e :
-                rospy.logerr( "Heartbeat thread error: {0}".format(e))
+            except rospy.ROSInterruptException as e:
+                rospy.logerr("Heartbeat thread error: {0}".format(e))
 
     # Set the drone mode to AUTO.MISSION inorder the execute the mission commands automatically.
     def set_mode(self, mode, timeout):
         # Save the old mode state.
         old_mode = self.state.mode
-        loop_freq = 1 # Hz
+        loop_freq = 1  # Hz
         rate = rospy.Rate(loop_freq)
         mode_set = False
 
@@ -155,7 +162,7 @@ class Multi_px4(Thread):
             if self.state.mode == mode:
                 mode_set = True
                 rospy.loginfo("set mode success | seconds: {0} of {1}".format(
-                i / loop_freq, timeout))
+                    i / loop_freq, timeout))
                 break
             else:
                 try:
@@ -163,7 +170,7 @@ class Multi_px4(Thread):
                     if not res.mode_sent:
                         rospy.logerr("failed to send mode command")
                 except rospy.ServiceException as e:
-                        print "Service call failed: %s" % e
+                    print "Service call failed: %s" % e
 
             try:
                 rate.sleep()
@@ -173,7 +180,7 @@ class Multi_px4(Thread):
     def set_arm(self, arm, timeout):
         # Save the old arm state.
         old_arm = self.state.armed
-        loop_freq = 1 # Hz
+        loop_freq = 1  # Hz
         rate = rospy.Rate(loop_freq)
         arm_set = False
         # Try setting the arm till the timeout expires or the correct arm is set.
@@ -181,11 +188,11 @@ class Multi_px4(Thread):
             if self.state.armed == arm:
                 arm_set = True
                 rospy.loginfo("set arm success | seconds: {0} of {1}".format(
-                i / loop_freq, timeout))
+                    i / loop_freq, timeout))
                 break
             else:
                 # Topic to which we have to send the arming command.
-                
+
                 try:
                     res = self.set_arming_srv(arm)
                     if not res.success:
@@ -198,8 +205,9 @@ class Multi_px4(Thread):
             except rospy.ROSException as e:
                 print(e)
 
+
 class keyboardListner(Thread):
-    def __init__(self, topic_prefix=None, keyQueue = [], *args):
+    def __init__(self, topic_prefix=None, keyQueue=[], *args):
         Thread.__init__(self)
         self.settings = termios.tcgetattr(sys.stdin)
         self.keyQueue = keyQueue
@@ -237,17 +245,18 @@ if __name__ == '__main__':
 
     drones = []
     droneMessageQueue = []
-    
+
     for i in range(droneAmount):
         print "Drone %d" % i
-        q = queue.Queue(maxsize = 10)
+        q = queue.Queue(maxsize=10)
         droneMessageQueue.append(q)
-        manualUav = Multi_px4(topic_prefix="uav%d" % i, actionQueue=droneMessageQueue[i])
+        manualUav = Multi_px4(topic_prefix="uav%d" %
+                              i, actionQueue=droneMessageQueue[i])
         drones.append(manualUav)
 
     print "Starting keyboard thread"
 
-    keyboardThread = keyboardListner(keyQueue = droneMessageQueue)
+    keyboardThread = keyboardListner(keyQueue=droneMessageQueue)
     keyboardThread.daemon = True
     keyboardThread.start()
 

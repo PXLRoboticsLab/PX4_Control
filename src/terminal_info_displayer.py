@@ -21,8 +21,11 @@ from threading import Thread
 
 ter_height = 32
 ter_width = 100
+
+
 def infoPrinter():
-    sys.stdout.write("\x1b[8;{rows};{cols}t".format(rows=ter_height, cols=ter_width))
+    sys.stdout.write("\x1b[8;{rows};{cols}t".format(
+        rows=ter_height, cols=ter_width))
     sys.stdout.flush()
     os.system('clear')
     os.system('setterm -cursor off')

@@ -11,6 +11,7 @@ from pymavlink import mavutil
 from threading import Thread
 from px4_ros import Px4Ros
 
+
 def read_file(mission_file_path):
     mission = None
     with open(mission_file_path, 'r') as f:
@@ -18,10 +19,11 @@ def read_file(mission_file_path):
 
     return mission
 
+
 def mission_object_constructor(mission_json):
     if 'mission' in mission_json:
         mission_json = mission_json['mission']
-    
+
     if 'items' in mission_json:
         for wp in mission_json['items']:
             yield Waypoint(
@@ -47,7 +49,8 @@ def mission_object_constructor(mission_json):
 if __name__ == '__main__':
     # Ask the user which mission file to read using src/px4_sitl/missions as a base path.
     mission_file = raw_input("Please enter the name of the mission:")
-    mission_file_path = os.path.abspath("src/PX4_SITL/missions/" + mission_file)
+    mission_file_path = os.path.abspath(
+        "src/PX4_SITL/missions/" + mission_file)
     rospy.init_node('test', anonymous=True)
     rospy.loginfo(mission_file_path)
     mission = read_file(mission_file_path)
@@ -65,5 +68,5 @@ if __name__ == '__main__':
     for thread in threads:
         thread.start()
 
-    #for thread in threads:
-        #thread.join()
+    # for thread in threads:
+        # thread.join()

@@ -20,10 +20,11 @@ from pymavlink import mavutil
 from threading import Thread
 
 state = State()
-q = queue.Queue(maxsize = 10)
+q = queue.Queue(maxsize=10)
 # mavros /mavros/setpoint_velocity/cmd_vel
 # https://github.com/weiweikong/px4_velocity_control_keyboard/blob/master/src/px4_velocity_control_node.cpp
 # https://answers.ros.org/question/207097/how-to-send-velocity-to-pixhawk-with-mavros/
+
 
 def state_callback(data):
     # Make sure that the global object state gets used for to local one.
@@ -32,32 +33,34 @@ def state_callback(data):
     # If there is a change in armed status display it.
     if state.armed != data.armed:
         rospy.loginfo("armed state changed from {0} to {1}"
-        .format(state.armed, data.armed))
+                      .format(state.armed, data.armed))
 
     # If there is a change in connection status display it.
     if state.connected != data.connected:
         rospy.loginfo("connected changed from {0} to {1}"
-        .format(state.connected, data.connected))
+                      .format(state.connected, data.connected))
 
     # If there is a change is mode status display it.
     if state.mode != data.mode:
         rospy.loginfo("mode changed from {0} to {1}"
-        .format(state.mode, data.mode))
+                      .format(state.mode, data.mode))
 
     # If there is a a change in system status display it.
     if state.system_status != data.system_status:
         rospy.loginfo("system_status changed from {0} to {1}"
-        .format(mavutil.mavlink.enums['MAV_STATE']
-        [state.system_status].name, mavutil.mavlink.enums
-        ['MAV_STATE'][data.system_status].name))
+                      .format(mavutil.mavlink.enums['MAV_STATE']
+                              [state.system_status].name, mavutil.mavlink.enums
+                              ['MAV_STATE'][data.system_status].name))
 
     # Set the global status object to the current one we got back from the drone via the topic.
     state = data
 
+
 def send_heartbeat():
     # Topic to which we have to send the heartbeat to.
     mavlink_pub = rospy.Publisher('mavlink/to', Mavlink, queue_size=1)
-    hb_mav_msg = mavutil.mavlink.MAVLink_heartbeat_message(mavutil.mavlink.MAV_TYPE_GCS, 0, 0, 0, 0, 0)
+    hb_mav_msg = mavutil.mavlink.MAVLink_heartbeat_message(
+        mavutil.mavlink.MAV_TYPE_GCS, 0, 0, 0, 0, 0)
     hb_mav_msg.pack(mavutil.mavlink.MAVLink('', 2, 1))
     hb_ros_msg = mavlink.convert_to_rosmsg(hb_mav_msg)
     rate = rospy.Rate(2)
@@ -65,17 +68,19 @@ def send_heartbeat():
         mavlink_pub.publish(hb_ros_msg)
         try:  # prevent garbage in console output when thread is killed.
             rate.sleep()
-        except rospy.ROSInterruptException as e :
-            rospy.logerr( "Heartbeat thread error: {0}".format(e))
+        except rospy.ROSInterruptException as e:
+            rospy.logerr("Heartbeat thread error: {0}".format(e))
 
 # Set the drone mode to AUTO.MISSION inorder the execute the mission commands automatically.
+
+
 def set_mode(mode, timeout):
     # Make sure that the global object state gets used for to local one.
     global state
 
     # Save the old mode state.
     old_mode = state.mode
-    loop_freq = 1 # Hz
+    loop_freq = 1  # Hz
     rate = rospy.Rate(loop_freq)
     mode_set = False
 
@@ -94,12 +99,13 @@ def set_mode(mode, timeout):
                 if not res.mode_sent:
                     rospy.logerr("failed to send mode command")
             except rospy.ServiceException as e:
-                    print "Service call failed: %s" % e
+                print "Service call failed: %s" % e
 
         try:
             rate.sleep()
         except rospy.ROSException as e:
             print(e)
+
 
 def set_arm(arm, timeout):
     # Make sure that the global object state gets used for to local one.
@@ -107,7 +113,7 @@ def set_arm(arm, timeout):
 
     # Save the old arm state.
     old_arm = state.armed
-    loop_freq = 1 # Hz
+    loop_freq = 1  # Hz
     rate = rospy.Rate(loop_freq)
     arm_set = False
     # Try setting the arm till the timeout expires or the correct arm is set.
@@ -115,11 +121,12 @@ def set_arm(arm, timeout):
         if state.armed == arm:
             arm_set = True
             rospy.loginfo("set arm success | seconds: {0} of {1}".format(
-            i / loop_freq, timeout))
+                i / loop_freq, timeout))
             break
         else:
             # Topic to which we have to send the arming command.
-            set_arming_srv = rospy.ServiceProxy('mavros/cmd/arming', CommandBool)
+            set_arming_srv = rospy.ServiceProxy(
+                'mavros/cmd/arming', CommandBool)
             try:
                 res = set_arming_srv(arm)
                 if not res.success:
@@ -132,12 +139,14 @@ def set_arm(arm, timeout):
         except rospy.ROSException as e:
             print(e)
 
+
 def get_key():
     tty.setraw(sys.stdin.fileno())
     select.select([sys.stdin], [], [], 0)
     pressed_key = sys.stdin.read(1)
     termios.tcsetattr(sys.stdin, termios.TCSADRAIN, settings)
     return pressed_key
+
 
 def keyboardListener():
     while not rospy.is_shutdown():
@@ -164,7 +173,8 @@ if __name__ == '__main__':
     kb_thread.daemon = True
     kb_thread.start()
 
-    set_raw_local = rospy.Publisher('mavros/setpoint_raw/local', PositionTarget, queue_size=100)
+    set_raw_local = rospy.Publisher(
+        'mavros/setpoint_raw/local', PositionTarget, queue_size=100)
 
     '''
     set_att_pub = rospy.Publisher('mavros/setpoint_attiude/attitude', PoseStamped, queue_size=100)
