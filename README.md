@@ -12,6 +12,13 @@ git clone https://github.com/PX4/Firmware.git
 git checkout tags/v1.8.2
 ```
 
+## Clone required prackages
+```
+cd ~/catkin_ws/src
+git clone https://bitbucket.org/DataspeedInc/velodyne_simulator.git
+cd ~/catkin_ws
+catkin build
+```
 ## Installing this package
 
 ### Clone this into the src folder of your catkin workspace
