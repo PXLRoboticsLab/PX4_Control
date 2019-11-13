@@ -105,7 +105,6 @@ class Multi_px4(Thread):
                     self.att_cmd.velocity.x = 0
                     self.att_cmd.velocity.y = 0
                     self.att_cmd.velocity.z = 0
-                    self.att_cmd.yaw = 0
 
             self.set_raw_local.publish(self.att_cmd)
             self.rate.sleep()

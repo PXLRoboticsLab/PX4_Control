@@ -134,28 +134,29 @@
     camera_suffix="iris_depth"
     frame_rate="30.0"
   >
-  <origin xyz="0.02 0 0.07" rpy="0 0 0"/>
+  <box size="0.05 0.05 0.05" />
+  <origin xyz="0 0 0.12" rpy="0 0 0"/>
   </xacro:vi_sensor_depth_macro>
 
-  <!--xacro:HDL-32E
+  <xacro:HDL-32E
     parent="base_link"
-    name="iris_$(arg drone_id)_velodyne"
-    topic="/iris_$(arg drone_id)/velodyne_points"
+    name="${namespace}/lidar$(arg drone_id)_VLP-16"
+    topic="/uav$(arg drone_id)/velodyne_points"
     hz="10" 
     samples="220"
   >
   <origin xyz="-0.2 0 0.15" rpy="0 0 0" />
-  </xacro:HDL-32E-->
+  </xacro:HDL-32E>
 
-  <VLP-16
-    name="${namespace}/VLP-16"
+  <!--VLP-16
+    name="${namespace}/lidar$(arg drone_id)_VLP-16"
     parent="base_link"
     topic="/uav$(arg drone_id)/velodyne_points"
     hz="10" 
     samples="220"
   >
   <origin xyz="0 0 0.07" rpy="0 0 0" />
-  </VLP-16>
+  </VLP-16-->
 
   <!-- Mount an ADIS16448 IMU. -->
   <xacro:imu_plugin_macro

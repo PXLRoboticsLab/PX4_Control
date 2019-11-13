@@ -160,6 +160,98 @@
             <arg name="tgt_system" value="$(eval 1 + arg('ID'))"/>
             <arg name="tgt_component" value="1"/>
         </include>
+    </group>
+    <group ns="uav6">
+        <arg name="ID" value="6"/>
+        <arg name="fcu_url" default="udp://:14546@localhost:14586"/>
+        <include file="$(find px4_sitl)/launch/single_vehicle_spawn.launch">
+            <arg name="x" value="3"/>
+            <arg name="y" value="0"/>
+            <arg name="z" value="0"/>
+            <arg name="R" value="0"/>
+            <arg name="P" value="0"/>
+            <arg name="Y" value="0"/>
+            <arg name="vehicle" value="$(arg vehicle)"/>
+            <arg name="mavlink_udp_port" value="14566"/>
+            <arg name="mavlink_tcp_port" value="4566"/>
+            <arg name="ID" value="$(arg ID)"/>
+        </include>
+
+        <include file="$(find mavros)/launch/px4.launch">
+            <arg name="fcu_url" value="$(arg fcu_url)"/>
+            <arg name="gcs_url" value=""/>
+            <arg name="tgt_system" value="$(eval 1 + arg('ID'))"/>
+            <arg name="tgt_component" value="1"/>
+        </include>
+    </group>
+    <group ns="uav7">
+        <arg name="ID" value="7"/>
+        <arg name="fcu_url" default="udp://:14547@localhost:14587"/>
+        <include file="$(find px4_sitl)/launch/single_vehicle_spawn.launch">
+            <arg name="x" value="3"/>
+            <arg name="y" value="1"/>
+            <arg name="z" value="0"/>
+            <arg name="R" value="0"/>
+            <arg name="P" value="0"/>
+            <arg name="Y" value="0"/>
+            <arg name="vehicle" value="$(arg vehicle)"/>
+            <arg name="mavlink_udp_port" value="14567"/>
+            <arg name="mavlink_tcp_port" value="4567"/>
+            <arg name="ID" value="$(arg ID)"/>
+        </include>
+
+        <include file="$(find mavros)/launch/px4.launch">
+            <arg name="fcu_url" value="$(arg fcu_url)"/>
+            <arg name="gcs_url" value=""/>
+            <arg name="tgt_system" value="$(eval 1 + arg('ID'))"/>
+            <arg name="tgt_component" value="1"/>
+        </include>
+    </group>
+    <group ns="uav8">
+        <arg name="ID" value="8"/>
+        <arg name="fcu_url" default="udp://:14548@localhost:14588"/>
+        <include file="$(find px4_sitl)/launch/single_vehicle_spawn.launch">
+            <arg name="x" value="4"/>
+            <arg name="y" value="1"/>
+            <arg name="z" value="0"/>
+            <arg name="R" value="0"/>
+            <arg name="P" value="0"/>
+            <arg name="Y" value="0"/>
+            <arg name="vehicle" value="$(arg vehicle)"/>
+            <arg name="mavlink_udp_port" value="14568"/>
+            <arg name="mavlink_tcp_port" value="4568"/>
+            <arg name="ID" value="$(arg ID)"/>
+        </include>
+
+        <include file="$(find mavros)/launch/px4.launch">
+            <arg name="fcu_url" value="$(arg fcu_url)"/>
+            <arg name="gcs_url" value=""/>
+            <arg name="tgt_system" value="$(eval 1 + arg('ID'))"/>
+            <arg name="tgt_component" value="1"/>
+        </include>
+    </group>
+    <group ns="uav9">
+        <arg name="ID" value="9"/>
+        <arg name="fcu_url" default="udp://:14549@localhost:14589"/>
+        <include file="$(find px4_sitl)/launch/single_vehicle_spawn.launch">
+            <arg name="x" value="4"/>
+            <arg name="y" value="0"/>
+            <arg name="z" value="0"/>
+            <arg name="R" value="0"/>
+            <arg name="P" value="0"/>
+            <arg name="Y" value="0"/>
+            <arg name="vehicle" value="$(arg vehicle)"/>
+            <arg name="mavlink_udp_port" value="14569"/>
+            <arg name="mavlink_tcp_port" value="4569"/>
+            <arg name="ID" value="$(arg ID)"/>
+        </include>
+
+        <include file="$(find mavros)/launch/px4.launch">
+            <arg name="fcu_url" value="$(arg fcu_url)"/>
+            <arg name="gcs_url" value=""/>
+            <arg name="tgt_system" value="$(eval 1 + arg('ID'))"/>
+            <arg name="tgt_component" value="1"/>
+        </include>
     </group-->
 </launch>
 <!-- to add more UAVs (up to 10):
