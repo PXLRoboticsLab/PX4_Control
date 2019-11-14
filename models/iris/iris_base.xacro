@@ -138,7 +138,7 @@
   <origin xyz="0 0 0.12" rpy="0 0 0"/>
   </xacro:vi_sensor_depth_macro>
 
-  <xacro:HDL-32E
+  <!--xacro:HDL-32E
     parent="base_link"
     name="${namespace}/lidar$(arg drone_id)_VLP-16"
     topic="/uav$(arg drone_id)/velodyne_points"
@@ -146,7 +146,7 @@
     samples="220"
   >
   <origin xyz="-0.2 0 0.15" rpy="0 0 0" />
-  </xacro:HDL-32E>
+  </xacro:HDL-32E-->
 
   <!--VLP-16
     name="${namespace}/lidar$(arg drone_id)_VLP-16"
