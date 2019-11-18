@@ -1,5 +1,8 @@
 <?xml version="1.0"?>
    <launch>
+     <node name="rviz" pkg="rviz" type="rviz" required="true"
+      args="-d $(find px4_sitl)/slam/rviz/config/cartographer.rviz"/>
+
    <remap from="points2" to="/uav0/velodyne_points" />
       <param name="/use_sim_time" value="false" />
       <node name="cartographer_node"
