@@ -1,4 +1,7 @@
 <launch>
+  <node name="rviz" pkg="rviz" type="rviz" required="true"
+      args="-d $(find px4_sitl)/slam/rviz/config/orb_slam2.rviz"/>
+
   <node name="orb_slam2_rgbd" pkg="orb_slam2_ros"
       type="orb_slam2_ros_rgbd" output="screen">
 
