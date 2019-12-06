@@ -9,7 +9,7 @@ http://gazebosim.org
 ```
 cd ~
 git clone https://github.com/PX4/Firmware.git
-git checkout tags/v1.8.2
+git checkout 34b03d56593815e16a29ba5dcef9b66208285c98
 ```
 
 ## Clone required prackages
@@ -101,5 +101,8 @@ or
 ```
 rosrun px4_sitl multi_manual_px4.py
 ```
+<<<<<<< HEAD
 
 GCN_PATH=gcn2_320x240.pt ./rgbd_gcn ../Vocabulary/GCNvoc.bin TUM3_small.yaml /home/user/Projects/slam/data/rgbd_dataset_freiburg3_long_office_household_validation /home/user/Projects/slam/ORB_SLAM2/Examples/RGB-D/associations/fr3_office_val.txt
+=======
+>>>>>>> master
