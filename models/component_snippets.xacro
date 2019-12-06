@@ -439,7 +439,7 @@
         </geometry>
       </collision>
         <visual>
-          <origin xyz="0 0 0" rpy="0 1.57079632679 0" />
+          <origin xyz="0 0 0" rpy="0 0 0" />
           <geometry>
             <xacro:insert_block name="cylinder" />
           </geometry>

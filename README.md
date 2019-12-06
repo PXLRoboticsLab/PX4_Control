@@ -101,3 +101,5 @@ or
 ```
 rosrun px4_sitl multi_manual_px4.py
 ```
+
+GCN_PATH=gcn2_320x240.pt ./rgbd_gcn ../Vocabulary/GCNvoc.bin TUM3_small.yaml /home/user/Projects/slam/data/rgbd_dataset_freiburg3_long_office_household_validation /home/user/Projects/slam/ORB_SLAM2/Examples/RGB-D/associations/fr3_office_val.txt
