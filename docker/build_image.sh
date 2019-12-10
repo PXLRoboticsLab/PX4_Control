@@ -10,4 +10,4 @@ else
     (docker build -t px4_sitl_docker_base:latest -f ./dockerfile/opengl/Dockerfile .)
 fi
 
-(docker build -t px4_sitl_docker:latest -f ./dockerfile/px4/Dockerfile .)
+(docker build -t px4_control_docker:latest -f ./dockerfile/px4/Dockerfile .)

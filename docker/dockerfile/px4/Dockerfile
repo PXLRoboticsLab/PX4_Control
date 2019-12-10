@@ -127,7 +127,9 @@ RUN apt install gstreamer1.0-plugins-bad gstreamer1.0-libav libfuse2 fuse libpul
 RUN wget https://s3-us-west-2.amazonaws.com/qgroundcontrol/latest/QGroundControl.AppImage
 RUN chmod +x ./QGroundControl.AppImage
 
+USER user
 WORKDIR /home/user
+RUN cd Projects
 RUN cd Projects/catkin_ws/src && git clone https://github.com/PXLRoboticsLab/PX4_Control.git && cd /home/user/Projects/catkin_ws && catkin build
 
 USER root

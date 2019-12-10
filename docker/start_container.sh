@@ -1,7 +1,7 @@
 #!/bin/bash
 
-docker stop $(docker ps -aqf "name=px4_sitl_docker")
-docker rm $(docker ps -aqf "name=px4_sitl_docker")
+docker stop $(docker ps -aqf "name=px4_control_docker")
+docker rm $(docker ps -aqf "name=px4_control_docker")
 
 xhost +local:docker
 
@@ -27,8 +27,8 @@ if [ $vendor == "NVIDIA" ]; then
         --volume="$XAUTH:$XAUTH" \
         --runtime=nvidia \
         --cap-add SYS_ADMIN --device /dev/fuse \
-        --name px4_sitl_docker \
-        px4_sitl_docker:latest \
+        --name px4_control_docker \
+        px4_control_docker:latest \
         bash
 else
     docker run --privileged -it \
@@ -38,7 +38,7 @@ else
         --env="DISPLAY=$DISPLAY" \
         -e "TERM=xterm-256color" \
         --cap-add SYS_ADMIN --device /dev/fuse \
-        --name px4_sitl_docker \
-        px4_sitl_docker:latest \
+        --name px4_control_docker \
+        px4_control_docker:latest \
         bash
 fi
